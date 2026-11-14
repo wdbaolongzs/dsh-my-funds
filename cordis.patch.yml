@@ -1,0 +1,7 @@
+# dsh-my-funds bundle patch
+#
+# Mounts the plugin's host half (lib/index.js). The client half is loaded by the
+# web client module loader through the `./client` export.
+- insert:
+    - id: my-funds
+      name: 'dsh-my-funds'

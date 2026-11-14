@@ -1,0 +1,68 @@
+{
+  "name": "dsh-my-funds",
+  "version": "0.1.0",
+  "description": "Fund holdings panel for the DSH sidebar: import broker screenshots via Windows OCR, track daily P&L, holding return and DCA plans, and get emailed reports twice a day.",
+  "type": "module",
+  "main": "lib/index.js",
+  "author": "YG",
+  "keywords": [
+    "dsh-plugin",
+    "dsh",
+    "fund",
+    "portfolio",
+    "ocr",
+    "sidebar",
+    "finance",
+    "screenshot"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wdbaolongzs/dsh-my-funds.git"
+  },
+  "homepage": "https://github.com/wdbaolongzs/dsh-my-funds#readme",
+  "bugs": {
+    "url": "https://github.com/wdbaolongzs/dsh-my-funds/issues"
+  },
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./icon": "./icon.svg",
+    "./locale/*.json": "./locale/*.json",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/core.js",
+    "lib/client.js",
+    "lib/ocr.ps1",
+    "lib/mobile.html",
+    "cordis.patch.yml",
+    "icon.svg",
+    "assets/icon-180.png",
+    "LICENSE",
+    "locale/*.json",
+    "README.md",
+    "lib/notify.js"
+  ],
+  "icon": "./icon.svg",
+  "engines": {
+    "node": ">=20"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-slots"
+      ],
+      "platform": "web"
+    },
+    "manifestVersion": 1
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.5"
+  },
+  "license": "MIT"
+}

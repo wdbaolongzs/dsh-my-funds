@@ -1,0 +1,11 @@
+{
+  "meta": {
+    "title": "My Funds",
+    "description": "Import fund screenshots, track daily P&L, holding returns and DCA totals — with intraday NAV estimates."
+  },
+  "srcGsz": "Intraday",
+  "srcSector": "Sector est.",
+  "srcNav": "Today NAV",
+  "srcPrev": "Prev NAV",
+  "srcPrevTip": "Today NAV not published yet; showing the last trading day"
+}
