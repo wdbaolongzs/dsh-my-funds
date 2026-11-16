@@ -1,32 +1,59 @@
 # 我的基金 · dsh-my-funds
 
-DSH 左侧栏里的基金助手：**导入持仓截图 → 自动看每日盈亏、持有收益、定投汇总**。盘中用实时估值预估当天收益，收盘后切回官方净值。
+[![stars](https://img.shields.io/github/stars/wdbaolongzs/dsh-my-funds?style=flat)](https://github.com/wdbaolongzs/dsh-my-funds/stargazers)
+[![release](https://img.shields.io/github/v/release/wdbaolongzs/dsh-my-funds)](https://github.com/wdbaolongzs/dsh-my-funds/releases)
+[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![listed](https://img.shields.io/badge/awesome--dsh--plugin-listed-orange)](https://awesome-dsh-plugin.com)
 
-![sidebar panel](assets/screenshot.png)
+### 支付宝、国泰、南方、摩根、易方达的持仓截图丢进来，一次看全所有基金的**今日盈亏**。
 
-## English
+不用再一个个 App 截图、手抄、对账。截图 → 本地识别（不联网、不上传）→ 自动跟净值 → 早晚各一封汇总邮件到 QQ 邮箱。
 
-A fund-portfolio panel for the DSH sidebar. You import screenshots of your positions from broker apps (Guotai, Nanfang, Morgan, E Fund, Alipay/Ant Fortune, Tiantian Fund), and the plugin reads them with the built-in Windows OCR engine, then keeps the numbers up to date by pulling public NAV data from Eastmoney.
-
-What it does:
-
-- **Screenshot import** — Windows WinRT OCR (no cloud, no API key), with several layout parsers that pick themselves: table header rows, label-above-value cards, one-fund-per-row lists, and single-fund "asset detail" pages. Holding screenshots and DCA-plan screenshots are imported separately.
-- **Daily P&L with a five-step chain** — intraday estimate (`gsz`) → the app's own "today's gain" from an imported detail page → official NAV once published → tracked-sector index change → previous trading day. Each row labels which link it used.
-- **Sector column** — maps a fund name to its tracker index (Nasdaq 100, S&P 500, CSI 300, CSI 500, ChiNext, STAR 50, liquor, gold, oil, …) and shows that index's change next to the holding.
-- **DCA plans** — import the plan screenshot or add one by hand; each due date buys `amount / NAV` shares from the historical NAV series, weekends roll to the next trading day, holidays are skipped, and money still in transit is tracked separately.
-- **Multi-channel de-duplication** — a fund bought both in Alipay and in the fund company's own app appears as one position; the fund-company figure (all channels) wins and the reseller part is noted as already included.
-- **Email report twice a day** — a morning estimate and an evening settlement, sent over plain SMTP (no dependency); the same message can also be pushed through an OneBot endpoint configured in the settings file.
-- **Mobile page** — a read-only page served on the LAN so you can check it from your phone.
-
-Install (from this repo):
+![面板与截图导入](assets/hero.png)
 
 ```sh
 dsh plugin add https://github.com/wdbaolongzs/dsh-my-funds
 ```
 
-or point the DSH plugin manager at a local checkout. The host must be Windows desktop — screenshot import goes through `powershell.exe` and `Windows.Media.Ocr`; elsewhere manual entry and quote tracking still work.
+装完左侧栏点橙色折线图标。数据留在本机 `<DSH_PROFILE_DIR>/my-funds/state.json`，卸载插件不删数据。
 
-Data source: `fundmobapi.eastmoney.com` (quotes and intraday estimate), `danjuanfunds.com` / `api.fund.eastmoney.com` (NAV history), `fundsuggest.eastmoney.com` (name → code), `push2.eastmoney.com` (index quotes). No account, no key, no scraping of your broker.
+---
+
+## 它解决的那几个具体麻烦
+
+| 你遇到的 | 它怎么处理 |
+|---|---|
+| 一只基金在支付宝买过、又在基金公司 App 定投，两边数字不一样 | 认**基金公司（全渠道合计）**那一份，代销部分自动合并并在行下注明「已含 代销 ¥xxx」，不会算两遍 |
+| 列表页的收益是昨天结算的，点进详情页才是最新的 | 单只详情页截图优先，导入后行内直接显示「当日实际」 |
+| 净值要晚上才出，白天看不到今天挣了多少 | 盘中先按**关联板块**（纳斯达克100 / 标普500 / 沪深300 / 白酒 / 医疗 / 黄金…）推算，净值一出自动切官方值，每行都标口径 |
+| 定投截图是一堆扣款记录，很难看出下次什么时候扣 | 识别成计划（每期金额 / 周期 / 下次扣款日），到期自动按历史净值买入，周末顺延、节假日跳过 |
+| 想每天早晚各看一眼，又不想开电脑翻 App | 08:00 早盘预估 + 21:30 收盘结算，两封邮件；手机连同一 WiFi 也能开只读页面 |
+
+### 三种截图的识别效果
+
+| 版式 | 例子 |
+|---|---|
+| 表头列表（一屏多只） | `名称 / 金额·当日盈亏 / 持有收益·率` |
+| 标签在上、数值在下（卡片） | `金额（元）` 下一行 970.72 |
+| 单只详情页 | `资产详情` / `持仓详情` / `持有详情`，含份额、成本、待确认金额 |
+
+---
+
+## English
+
+A fund-portfolio panel for the DSH sidebar. Import screenshots of your positions from broker apps (Alipay/Ant Fortune, Guotai, Nanfang, Morgan, E Fund, Tiantian Fund); the plugin reads them with the Windows-built-in OCR engine (no cloud, no API key), keeps the numbers current from public NAV data, and emails a morning estimate plus an evening settlement.
+
+- **Separate imports for holdings and DCA plans** — four layout parsers pick themselves per screenshot, including whole-page DCA detail pages.
+- **Five-step P&L source chain** — intraday estimate → the app's own "today's gain" → official NAV → tracked-sector index → previous trading day. Each row labels which link it used.
+- **Sector column** — maps each fund to its tracker index and shows that index's move next to the holding.
+- **DCA settlement** — due dates buy `amount / NAV` from the historical series; weekends roll forward, holidays are skipped, cash in transit is tracked separately so it is never double-counted.
+- **Multi-channel de-duplication** — one position per fund; the fund-company figure (all channels) wins, the reseller part is noted as already included.
+- **Twice-daily email** — dependency-free SMTP (465/587, STARTTLS), plus an optional OneBot sender.
+- **Phone page** — read-only page on your LAN.
+
+Install: `dsh plugin add https://github.com/wdbaolongzs/dsh-my-funds` (Windows desktop required for screenshot import; manual entry and quote tracking work elsewhere).
+
+Data sources: `fundmobapi.eastmoney.com` (quotes, intraday estimate), `danjuanfunds.com` / `api.fund.eastmoney.com` (NAV history), `fundsuggest.eastmoney.com` (name → code), `push2.eastmoney.com` (index quotes). No account, no key, nothing read from your broker.
 
 MIT licensed.
 
